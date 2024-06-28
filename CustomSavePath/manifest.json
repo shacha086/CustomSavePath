@@ -4,6 +4,6 @@
   "Version": "1.0.0",
   "UniqueID": "shacha.CustomSavePath",
   "EntryDll": "CustomSavePath.dll",
-  "MinimumApiVersion": "3.18.5",
+  "MinimumApiVersion": "4.0.0",
   "UpdateKeys": []
 }
