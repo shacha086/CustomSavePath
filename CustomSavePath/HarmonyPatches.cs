@@ -5,6 +5,7 @@ using StardewModdingAPI;
 namespace CustomSavePath;
 
 [HarmonyPatch(typeof(Constants), "DataPath", MethodType.Getter)]
+[HarmonyPriority(Priority.First)]
 internal class ConstantsDataPath
 {
     private static string Result { get; } =
