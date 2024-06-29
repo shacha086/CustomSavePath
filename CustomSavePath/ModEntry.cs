@@ -30,8 +30,7 @@ public class ModEntry : HackWithConfig<ModEntry, ModConfig>
                 ? Path.GetFullPath(Config.Path)
                 : Path.GetDirectoryName(Config.Path)!;
             Monitor.Log("Custom Save Path: " + dirPath, LogLevel.Info);
-            ApplyPatch(typeof(Environment), "GetFolderPath", Environment_GetFolderPath, typeof(Environment.SpecialFolder), typeof(Environment.SpecialFolderOption));
-            typeof(Constants).GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, Type.EmptyTypes, null)!.Invoke(null, null);
+            Patch(typeof(Environment), "GetFolderPath", Environment_GetFolderPath, typeof(Environment.SpecialFolder), typeof(Environment.SpecialFolderOption));
         }
         catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException)
         {
@@ -39,7 +38,7 @@ public class ModEntry : HackWithConfig<ModEntry, ModConfig>
         }
     }
 
-    private void ApplyPatch(Type type, string methodName, Action patch, params Type[] parameters)
+    private void Patch(Type type, string methodName, Action patch, params Type[] parameters)
     {
         Type[]? param = null;
         if (parameters.Length > 0) param = parameters;
