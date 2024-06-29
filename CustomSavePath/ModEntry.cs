@@ -1,7 +1,6 @@
-﻿using GenericModConfigMenu;
-using StardewHack;
+﻿using System.Reflection;
+using GenericModConfigMenu;
 using StardewModdingAPI;
-using StardewValley;
 using static StardewHack.Instructions;
 
 namespace CustomSavePath
@@ -16,7 +15,7 @@ namespace CustomSavePath
         // ReSharper disable once ParameterHidesMember
         public override void HackEntry(IModHelper helper)
         {
-            if (config.Path == "")
+            if (Config.Path == "")
             {
                 Monitor.Log("Custom Save Path has not been set, ignoring...", LogLevel.Info);
                 return;
@@ -24,16 +23,17 @@ namespace CustomSavePath
 
             try
             {
-                var attr = File.GetAttributes(config.Path);
+                var attr = File.GetAttributes(Config.Path);
                 var dirPath = attr.HasFlag(FileAttributes.Directory)
-                    ? Path.GetFullPath(config.Path)
-                    : Path.GetDirectoryName(config.Path)!;
+                    ? Path.GetFullPath(Config.Path)
+                    : Path.GetDirectoryName(Config.Path)!;
                 Monitor.Log("Custom Save Path: " + dirPath, LogLevel.Info);
-                Patch(typeof(Program), "GetAppDataFolder", Program_GetAppDataFolder);
+                Patch(typeof(StardewValley.Program), "GetAppDataFolder", Program_GetAppDataFolder);
             }
+            
             catch (Exception e) when (e is FileNotFoundException or DirectoryNotFoundException)
             {
-                Monitor.Log($"Wrong path '{config.Path}'", LogLevel.Error);
+                Monitor.Log($"Wrong path '{Config.Path}'", LogLevel.Error);
             }
         }
 
@@ -44,7 +44,12 @@ namespace CustomSavePath
                 Call(typeof(Environment), "GetFolderPath", typeof(Environment.SpecialFolder)) // code to replace
             );
 
-            code.Splice(0, 2, Ldstr(config.Path));
+            code.Splice(0, 2, Ldstr(Config.Path));
+        }
+
+        protected override void OnPatched()
+        {
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
 
         protected override void InitializeApi(IGenericModConfigMenuApi api)
@@ -53,8 +58,8 @@ namespace CustomSavePath
                 mod: ModManifest,
                 name: () => "Custom Save Path",
                 tooltip: () => "Restart needed.",
-                getValue: () => config.Path,
-                setValue: path => config.Path = path
+                getValue: () => Config.Path,
+                setValue: path => Config.Path = path
             );
         }
 
